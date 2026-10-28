@@ -173,6 +173,10 @@ After installing the pinned requirements, run:
 ```bash
 .venv/bin/python -m streamlit run app.py
 ```
+if want to run app and share url to same lan devcies run like this:
+```bash
+.venv/bin/python -m streamlit run app.py --server.address 0.0.0.0 --server.port 8501
+```
 
 Open **http://localhost:8501** in your browser. The app loads the saved models;
 starting it does not require a training run.
