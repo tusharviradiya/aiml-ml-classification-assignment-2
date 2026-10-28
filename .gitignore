@@ -1,0 +1,63 @@
+# Python virtual environments and bytecode
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+
+# Test, analysis, notebook and packaging caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.ipynb_checkpoints/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+build/
+dist/
+*.egg-info/
+
+# Editor, operating-system and temporary files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+*.tmp
+*.temp
+*.bak
+*.log
+/tmp/
+/temp/
+/uploads/
+
+# Local credentials and tool configuration
+.env
+.env.*
+!.env.example
+!.env.template
+**/.streamlit/secrets.toml
+.aws/
+.ssh/
+.gnupg/
+.agents/
+.codex/
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+*credentials*.json
+secrets.json
+
+# Keep the supplied assignment handout locally; it is not a project deliverable.
+/ML_Assignment_2_AIML_26Oct26.pdf
+
+# Intentionally tracked: requirements.txt, public source data, test_data.csv,
+# model/*.joblib, results/, and the final documentation required for evaluation.

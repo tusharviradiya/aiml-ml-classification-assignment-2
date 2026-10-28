@@ -1,0 +1,13 @@
+# Versions verified together in the local modeling environment (Python 3.14.4).
+# Streamlit and any UI dependencies will be added when the app is implemented.
+cloudpickle==3.1.2
+joblib==1.6.0
+narwhals==2.28.0
+numpy==2.5.4
+pandas==3.1.0
+python-dateutil==3.0.0
+scikit-learn==1.9.1
+scipy==1.18.1
+six==1.17.0
+threadpoolctl==3.7.0
+tzdata==2026.5
