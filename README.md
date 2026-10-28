@@ -184,16 +184,19 @@ starting it does not require a training run.
 1. Start with **Bundled test set** to evaluate the committed 640 held-out positions.
 2. Use the classifier dropdown to inspect any of the five saved models.
 3. View all six metrics, the confusion matrix, classification report, and ROC curve.
-4. Open **Compare all five models** for metrics calculated on the current test data
+4. Open **Compare models** for metrics calculated on the current test data
    and a downloadable comparison CSV.
 5. Download the example CSV, select **Upload CSV**, and upload that file to verify
    the labeled-data evaluation path. Uploaded files must be UTF-8 CSV, no larger
    than 2 MB, with at most 5,000 test positions.
-6. Open **Inspect test positions** to filter errors and download the selected
+6. Open **Positions** to filter errors and download the selected
    model's predictions. Test row numbers refer to data rows in the current CSV.
 
-Uploads are processed in memory and are not written to the repository or cached.
-Only the saved classifiers are cached. No fitting or tuning occurs in the app.
+Uploads are processed in memory and are not written to the repository. The
+current evaluation is retained only in that visitor's session so dropdown and
+filter changes can reuse it. New CSV content or a changed saved model triggers
+fresh evaluation; clearing an upload discards the session result. Only the saved
+classifiers use Streamlit's shared cache. No fitting or tuning occurs in the app.
 Invalid columns, duplicate headers, malformed rows, unsupported categories and
 labels produce readable errors. With one target class, AUC displays **N/A** with
 an explanation; the other metrics and 2×2 confusion matrix remain available.
@@ -203,12 +206,14 @@ are needed to run this app. Streamlit's usage telemetry is disabled.
 
 ### Local validation
 
-The 13 automated checks cover saved-model reproducibility, split integrity,
+The 16 automated checks cover saved-model reproducibility, split integrity,
 CSV parsing, all five dropdown choices, live upload evaluation without fitting,
 invalid uploads, clearing and replacing a file, error filtering, single-class
-data, and missing saved models. They use Streamlit's `AppTest` API to exercise
-the interface. The local server health endpoint was also checked successfully.
-These checks do not replace visual inspection in a browser before deployment.
+data, missing saved models, and session-result reuse, isolation and invalidation.
+They use Streamlit's `AppTest` API to exercise the interface. The local server
+health endpoint was also checked successfully. The responsive layout was tested
+in headless Chrome at phone, tablet, laptop and desktop sizes; see the
+[responsiveness report](docs/RESPONSIVENESS.md) for measurements and review steps.
 
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
