@@ -9,8 +9,8 @@ import streamlit as st
 from sklearn.metrics import roc_curve
 
 from app_data import (
-    METRICS, MODEL_FILES, evaluate_all, load_models, model_revision,
-    parse_test_csv, prediction_table,
+    METRICS, MODEL_FILES, SESSION_EVALUATION_KEY, evaluate_session, load_models,
+    model_revision, prediction_table,
 )
 from dataset import ROOT, TARGET, category_domains
 
@@ -20,7 +20,7 @@ st.set_page_config(page_title="Chess Endgame Lab", page_icon="♜", layout="wide
 
 @st.cache_resource(show_spinner=False)
 def cached_models(revision):
-    # revision participates in Streamlit's cache key; uploads are never cached.
+    # This shared cache contains models only; evaluation state is session-local.
     return load_models()
 
 
@@ -48,15 +48,47 @@ def confusion_chart(matrix):
 
 def main():
     st.markdown(
-        "<style>h1 {font-family: Georgia, serif; letter-spacing: -0.035em;} "
-        "[data-testid='stMetricValue'] {font-variant-numeric: tabular-nums;} "
-        ".block-container {padding-top: 2rem; padding-bottom: 2rem;}</style>",
+        """<style>
+        h1 {font-family: Georgia, serif; letter-spacing: -0.035em;}
+        .block-container {padding-top: 4rem; padding-bottom: 2rem;}
+        [data-testid="stVerticalBlock"].st-key-metric_grid {
+            display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .75rem;
+        }
+        .st-key-metric_grid > div {min-width: 0;}
+        .st-key-metric_region, .st-key-evaluation_panels {container-type: inline-size;}
+        .st-key-metric_grid [data-testid="stMetricValue"] {
+            font-variant-numeric: tabular-nums; font-size: clamp(1.5rem, 2vw, 1.9rem);
+        }
+        @container (max-width: 900px) {
+            [data-testid="stVerticalBlock"].st-key-metric_grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .st-key-evaluation_panels [data-testid="stHorizontalBlock"] {
+                flex-direction: column;
+            }
+            .st-key-evaluation_panels [data-testid="stColumn"] {
+                width: 100%; flex: 1 1 auto;
+            }
+        }
+        @container (max-width: 500px) {
+            [data-testid="stVerticalBlock"].st-key-metric_grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 600px) {
+            .block-container {padding: 3.75rem 1rem 1.5rem;}
+            h1 {font-size: 2rem !important; line-height: 1.2 !important;}
+        }
+        </style>""",
         unsafe_allow_html=True,
     )
     st.caption("♔  ♖   /   ♚  ♟     ·     KRKPA7 CLASSIFICATION")
     st.title("Chess Endgame Lab")
     st.write("Explore whether White can win. Compare five classifiers on the same endgame positions.")
     st.caption("King and rook vs. king and pawn on a7 · White to move · 36 categorical descriptors")
+    st.caption("Choose test data and a classifier in the sidebar. On a small screen, use the top-left sidebar button.")
+
+    example_content = (ROOT / "test_data.csv").read_bytes()
 
     with st.sidebar:
         st.header("Set up your evaluation")
@@ -68,8 +100,9 @@ def main():
                 help="Up to 2 MB and 5,000 test rows. Include all 36 features and outcome.",
             )
         st.download_button(
-            "Download example test CSV", data=(ROOT / "test_data.csv").read_bytes(),
+            "Download example test CSV", data=example_content,
             file_name="test_data.csv", mime="text/csv", key="example_download",
+            on_click="ignore",
         )
         selected = st.selectbox(
             "2. Choose a classifier", list(MODEL_FILES), index=4, key="selected_model",
@@ -86,23 +119,20 @@ def main():
         st.markdown("[Dataset and citation](https://archive.ics.uci.edu/dataset/22/chess+king+rook+vs+king+pawn)")
 
     if source == "Upload CSV" and uploaded is None:
+        st.session_state.pop(SESSION_EVALUATION_KEY, None)
         st.info("Upload a labeled test CSV to begin, or choose the bundled test set.")
         st.stop()
-    try:
-        content = uploaded.getvalue() if uploaded is not None else (ROOT / "test_data.csv").read_bytes()
-        frame = parse_test_csv(content)
-    except ValueError as error:
-        st.error(str(error))
-        st.stop()
+    content = uploaded.getvalue() if uploaded is not None else example_content
 
     try:
-        models = cached_models(model_revision())
+        revision = model_revision()
+        models = cached_models(revision)
     except Exception:
         logging.exception("Failed to load the saved chess classifiers")
         st.error("The saved classifiers are unavailable. Please contact the project owner.")
         st.stop()
     try:
-        details, comparison = evaluate_all(models, frame)
+        frame, details, comparison = evaluate_session(content, revision, models, st.session_state)
     except ValueError as error:
         st.error(str(error))
         st.stop()
@@ -117,17 +147,19 @@ def main():
     st.subheader(selected)
     if result["auc_note"]:
         st.info(result["auc_note"] + " The other five metrics are still shown.")
-    for column, metric in zip(st.columns(6), METRICS):
-        value = result["metrics"][metric]
-        display = "N/A" if value is None else (f"{value:.2%}" if metric == "Accuracy" else f"{value:.4f}")
-        column.metric(metric, display)
+    with st.container(key="metric_region"), st.container(key="metric_grid"):
+        for metric in METRICS:
+            value = result["metrics"][metric]
+            display = "N/A" if value is None else (f"{value:.2%}" if metric == "Accuracy" else f"{value:.4f}")
+            st.metric(metric, display, border=True)
     st.caption("Positive class: won. Precision, recall and F1 describe White-can-win predictions.")
 
     evaluation_tab, comparison_tab, positions_tab = st.tabs([
-        "Model evaluation", "Compare all five models", "Inspect test positions",
+        "Evaluation", "Compare models", "Positions",
     ])
     with evaluation_tab:
-        chart_col, report_col = st.columns([1, 1])
+        panels = st.container(key="evaluation_panels")
+        chart_col, report_col = panels.columns([1, 1])
         with chart_col:
             st.subheader("Confusion matrix")
             st.altair_chart(confusion_chart(result["confusion_matrix"]), width="stretch")
@@ -170,15 +202,17 @@ def main():
         st.dataframe(comparison, hide_index=True, column_config={
             metric: st.column_config.NumberColumn(format="%.4f") for metric in METRICS
         })
-        score_chart = alt.Chart(comparison).mark_bar(color="#1e5c47", cornerRadiusEnd=3).encode(
+        chart_data = comparison.assign(Model=["Logistic", "Tree", "KNN", "Naive Bayes", "SVM"])
+        score_chart = alt.Chart(chart_data).mark_bar(color="#1e5c47", cornerRadiusEnd=3).encode(
             x=alt.X("F1:Q", scale=alt.Scale(domain=[0, 1])),
-            y=alt.Y("ML Model Name:N", sort="-x", title=None),
+            y=alt.Y("Model:N", sort="-x", title=None),
             tooltip=["ML Model Name:N", alt.Tooltip("F1:Q", format=".4f")],
         ).properties(height=220)
         st.altair_chart(score_chart, width="stretch")
         st.download_button(
             "Download comparison CSV", comparison.to_csv(index=False), "model_comparison.csv", "text/csv",
             key="comparison_download",
+            on_click="ignore",
         )
         manifest = json.loads((ROOT / "results/manifest.json").read_text())
         st.caption(f"Original training CV selection: {manifest['selected_model']}. "
@@ -196,6 +230,7 @@ def main():
         st.download_button(
             "Download selected model predictions", predictions.to_csv(index=False),
             "model_predictions.csv", "text/csv", key="predictions_download",
+            on_click="ignore",
         )
         with st.expander("Preview input features"):
             st.dataframe(frame.head(50), hide_index=True)

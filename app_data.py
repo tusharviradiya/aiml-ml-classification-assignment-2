@@ -5,6 +5,7 @@ it never fits a classifier or accepts a model file from the visitor.
 """
 
 import csv
+import hashlib
 from io import StringIO
 
 import joblib
@@ -24,6 +25,7 @@ MODEL_FILES = {
 METRICS = ["Accuracy", "AUC", "Precision", "Recall", "F1", "MCC"]
 MAX_UPLOAD_BYTES = 2 * 1024 * 1024
 MAX_TEST_ROWS = 5000
+SESSION_EVALUATION_KEY = "chess_evaluation"
 
 
 def parse_test_csv(content):
@@ -82,6 +84,26 @@ def evaluate_all(models, frame):
         {"ML Model Name": name, **result["metrics"]} for name, result in details.items()
     ])
     return details, comparison
+
+
+def evaluate_session(content, revision, models, state):
+    """Reuse the current evaluation only within this visitor's session.
+
+    File content and model revision both participate in the key. A new upload
+    replaces the previous result, and invalid data clears it before validation.
+    This avoids repeated inference for dropdown/filter interactions without
+    placing uploaded data into Streamlit's shared resource or data caches.
+    """
+    key = (hashlib.sha256(content).hexdigest(), revision)
+    cached = state.get(SESSION_EVALUATION_KEY)
+    if cached is not None and cached["key"] == key:
+        return cached["value"]
+    state.pop(SESSION_EVALUATION_KEY, None)
+    frame = parse_test_csv(content)
+    details, comparison = evaluate_all(models, frame)
+    value = (frame, details, comparison)
+    state[SESSION_EVALUATION_KEY] = {"key": key, "value": value}
+    return value
 
 
 def prediction_table(frame, result):
