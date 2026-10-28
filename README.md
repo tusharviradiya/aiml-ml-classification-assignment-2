@@ -1,10 +1,10 @@
 # Chess Endgame Outcome Classification
 
-Machine Learning Assignment 2 — local modeling stage.
+Machine Learning Assignment 2 — local modeling and Streamlit application.
 
-The five classifiers, saved preprocessing pipelines, and held-out evaluation are
-implemented. The Streamlit app, cloud deployment, BITS Virtual Lab execution,
-screenshot, and submission PDF are still pending.
+The five classifiers, saved preprocessing pipelines, held-out evaluation, and
+interactive Streamlit app are implemented and verified locally. Cloud deployment,
+BITS Virtual Lab execution, screenshot, and submission PDF are still pending.
 
 ## a. Problem statement
 
@@ -164,30 +164,80 @@ print(result["confusion_matrix"])
 
 The expected CSV schema is the 36 original feature columns plus `outcome`.
 Column order may vary; the evaluator restores model order. Target values must be
-`won` or `nowin`. Use `test_data.csv` as the example upload when the app is built.
+`won` or `nowin`. Use `test_data.csv` as the example upload.
+
+## Run Chess Endgame Lab locally
+
+After installing the pinned requirements, run:
+
+```bash
+.venv/bin/python -m streamlit run app.py
+```
+
+Open **http://localhost:8501** in your browser. The app loads the saved models;
+starting it does not require a training run.
+
+1. Start with **Bundled test set** to evaluate the committed 640 held-out positions.
+2. Use the classifier dropdown to inspect any of the five saved models.
+3. View all six metrics, the confusion matrix, classification report, and ROC curve.
+4. Open **Compare all five models** for metrics calculated on the current test data
+   and a downloadable comparison CSV.
+5. Download the example CSV, select **Upload CSV**, and upload that file to verify
+   the labeled-data evaluation path. Uploaded files must be UTF-8 CSV, no larger
+   than 2 MB, with at most 5,000 test positions.
+6. Open **Inspect test positions** to filter errors and download the selected
+   model's predictions. Test row numbers refer to data rows in the current CSV.
+
+Uploads are processed in memory and are not written to the repository or cached.
+Only the saved classifiers are cached. No fitting or tuning occurs in the app.
+Invalid columns, duplicate headers, malformed rows, unsupported categories and
+labels produce readable errors. With one target class, AUC displays **N/A** with
+an explanation; the other metrics and 2×2 confusion matrix remain available.
+
+Theme and upload limits are configured in `.streamlit/config.toml`. No secrets
+are needed to run this app. Streamlit's usage telemetry is disabled.
+
+### Local validation
+
+The 13 automated checks cover saved-model reproducibility, split integrity,
+CSV parsing, all five dropdown choices, live upload evaluation without fitting,
+invalid uploads, clearing and replacing a file, error filtering, single-class
+data, and missing saved models. They use Streamlit's `AppTest` API to exercise
+the interface. The local server health endpoint was also checked successfully.
+These checks do not replace visual inspection in a browser before deployment.
+
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -m pip check
+```
+
+Live Streamlit Community Cloud URL: **pending deployment**.
 
 ## Files and generated artifacts
 
 | Path | Purpose |
 | --- | --- |
+| `app.py` | Streamlit upload, model selection, metrics, charts and downloads |
+| `app_data.py` | Strict CSV parsing and saved-model inference for the app |
+| `.streamlit/config.toml` | Visual theme, upload limit and telemetry setting |
 | `scripts/audit_dataset.py` | Standard-library audit of the original data |
 | `dataset.py` | Original feature order, label mapping, category validation domains |
 | `train.py` | Reproducible split, training CV, model saving, and evaluation |
 | `evaluation.py` | Shared validation, inference, six metrics, confusion matrix and report |
 | `data/train_data.csv` | Training positions with target |
-| `test_data.csv` | Held-out positions with target, ready for the eventual app |
+| `test_data.csv` | Held-out positions with target; bundled app data and example upload |
 | `model/*.joblib` | All five trained classifiers with fitted encoders |
 | `results/metrics.csv` | Six test metrics plus training/CV F1 |
 | `results/evaluation.json` | Parameters, metrics, confusion matrices and reports |
 | `results/test_predictions.csv` | Per-model predictions and scores on the held-out rows |
 | `results/manifest.json` | Reproduction details and original zero-based row indices |
 | `tests/test_workflow.py` | Saved-artifact, split-integrity and inference validation checks |
+| `tests/test_app.py` | CSV parser and Streamlit interaction checks |
 
 ## Remaining assignment work
 
-- Build Streamlit upload, model dropdown, six metrics, model comparison, and
-  confusion matrix or classification report using saved models.
-- Add and verify app dependencies, then deploy to Streamlit Community Cloud.
+- Review the app in a browser and deploy it to Streamlit Community Cloud using
+  `app.py` as the entry point. Add the working public URL above.
 - Reproduce the full project on BITS Virtual Lab and capture one execution screenshot.
 - Commit and push the required files, and verify evaluator access to both links.
 - Prepare one final PDF containing the GitHub link, live app link, lab screenshot,

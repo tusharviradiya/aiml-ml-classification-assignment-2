@@ -113,10 +113,29 @@ The initial local milestones are published with `git push -u origin main` once
 the remote has been checked. A normal push preserves existing remote history
 and rejects a conflicting update instead of overwriting it.
 
+## Streamlit feature branch
+
+The local app is developed on `feat/streamlit-evaluation`. Its changes are split
+into app/dependency configuration, interaction tests, and documentation commits.
+After authenticating GitHub in your own terminal, publish the branch with:
+
+```bash
+git push -u origin feat/streamlit-evaluation
+```
+
+If the initial `main` commits have not yet been published, push them first:
+
+```bash
+git push -u origin main
+```
+
+Then open and review a pull request from the feature branch into `main`. These
+local commits have not been pushed by the assistant because GitHub credentials
+were unavailable in its session.
+
 ## Next milestones
 
-- Streamlit CSV upload, model selection, metrics and model comparison.
-- App error handling, confusion matrix, and interaction checks.
+- Browser review of the completed Streamlit interface.
 - Community Cloud deployment configuration and run instructions.
 - BITS Virtual Lab reproduction and the genuine execution screenshot.
 - Final README, live link, and submission PDF.
