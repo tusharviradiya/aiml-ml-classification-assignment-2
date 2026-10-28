@@ -2,9 +2,12 @@
 
 Machine Learning Assignment 2 — local modeling and Streamlit application.
 
+[Open Chess Endgame Lab on Streamlit Community Cloud](https://chess-endgame-lab-tushar.streamlit.app/)
+
 The five classifiers, saved preprocessing pipelines, held-out evaluation, and
-interactive Streamlit app are implemented and verified locally. Cloud deployment,
-BITS Virtual Lab execution, screenshot, and submission PDF are still pending.
+interactive Streamlit app are implemented and verified locally. The app is now
+deployed on Streamlit Community Cloud. BITS Virtual Lab execution, screenshot,
+and submission PDF are still pending.
 
 ## a. Problem statement
 
@@ -220,7 +223,12 @@ in headless Chrome at phone, tablet, laptop and desktop sizes; see the
 .venv/bin/python -m pip check
 ```
 
-Live Streamlit Community Cloud URL: **pending deployment**.
+Live Streamlit Community Cloud URL:
+[Chess Endgame Lab](https://chess-endgame-lab-tushar.streamlit.app/).
+
+A signed-out Chrome check on 28 October 2026 confirmed that the public app loads
+the 640-position bundled test set and displays the expected six SVM metrics,
+including 99.84% accuracy, with its confusion matrix and classification report.
 
 ## Files and generated artifacts
 
@@ -245,8 +253,6 @@ Live Streamlit Community Cloud URL: **pending deployment**.
 
 ## Remaining assignment work
 
-- Review the app in a browser and deploy it to Streamlit Community Cloud using
-  `app.py` as the entry point. Add the working public URL above.
 - Reproduce the full project on BITS Virtual Lab and capture one execution screenshot.
 - Commit and push the required files, and verify evaluator access to both links.
 - Prepare one final PDF containing the GitHub link, live app link, lab screenshot,
