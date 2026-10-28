@@ -10,7 +10,10 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 from streamlit.testing.v1 import AppTest
 
-from app_data import MAX_TEST_ROWS, MAX_UPLOAD_BYTES, MODEL_FILES, parse_test_csv
+from app_data import (
+    MAX_TEST_ROWS, MAX_UPLOAD_BYTES, MODEL_FILES, SESSION_EVALUATION_KEY,
+    evaluate_all, evaluate_session, load_models, model_revision, parse_test_csv,
+)
 from dataset import ROOT, TARGET
 from evaluation import evaluate_model
 
@@ -51,6 +54,39 @@ class CsvUploadTests(unittest.TestCase):
                    (",".join(self.rows[1]) + "\n") * (MAX_TEST_ROWS + 1)).encode()
         with self.assertRaisesRegex(ValueError, "at most"):
             parse_test_csv(content)
+
+
+class SessionEvaluationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.content = (ROOT / "test_data.csv").read_bytes()
+        cls.models = load_models()
+        cls.revision = model_revision()
+
+    def test_reuses_results_and_invalidates_on_data_or_model_change(self):
+        state = {}
+        with patch("app_data.evaluate_all", wraps=evaluate_all) as evaluate:
+            original = evaluate_session(self.content, self.revision, self.models, state)
+            self.assertIs(evaluate_session(self.content, self.revision, self.models, state), original)
+            self.assertEqual(evaluate.call_count, 1)
+            subset = original[0].head(10).to_csv(index=False).encode()
+            changed = evaluate_session(subset, self.revision, self.models, state)
+            self.assertEqual(len(changed[0]), 10)
+            self.assertEqual(evaluate.call_count, 2)
+            evaluate_session(subset, self.revision + (("changed", 1, 1),), self.models, state)
+            self.assertEqual(evaluate.call_count, 3)
+
+    def test_sessions_are_isolated_and_invalid_data_clears_previous_result(self):
+        first, second = {}, {}
+        with patch("app_data.evaluate_all", wraps=evaluate_all) as evaluate:
+            a = evaluate_session(self.content, self.revision, self.models, first)
+            b = evaluate_session(self.content, self.revision, self.models, second)
+            self.assertIsNot(a, b)
+            self.assertEqual(evaluate.call_count, 2)
+        with self.assertRaises(ValueError):
+            evaluate_session(b"invalid,outcome\nf,won", self.revision, self.models, first)
+        self.assertNotIn(SESSION_EVALUATION_KEY, first)
+        self.assertIn(SESSION_EVALUATION_KEY, second)
 
 
 class StreamlitInteractionTests(unittest.TestCase):
@@ -111,6 +147,17 @@ class StreamlitInteractionTests(unittest.TestCase):
         app.checkbox(key="only_errors").uncheck().run()
         self.assert_healthy(app)
         self.assertEqual(len(self.predictions(app)), 40)
+
+    def test_dropdown_and_filter_changes_reuse_session_evaluation(self):
+        with patch("app_data.evaluate_all", wraps=evaluate_all) as evaluate:
+            app = self.make_app()
+            app.selectbox(key="selected_model").set_value("KNN").run()
+            app.checkbox(key="only_errors").check().run()
+            self.assert_healthy(app)
+            self.assertEqual(evaluate.call_count, 1)
+            self.upload(app, pd.read_csv(ROOT / "test_data.csv", dtype=str).head(15).to_csv(index=False).encode())
+            self.assert_healthy(app)
+            self.assertEqual(evaluate.call_count, 2)
 
     def test_invalid_upload_removes_stale_results_and_can_be_corrected(self):
         app = self.make_app()
