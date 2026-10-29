@@ -59,5 +59,8 @@ secrets.json
 # Keep the supplied assignment handout locally; it is not a project deliverable.
 /ML_Assignment_2_AIML_26Oct26.pdf
 
+# Original lab screenshots contain a session token; publish redacted evidence only.
+/lab_ss/
+
 # Intentionally tracked: requirements.txt, public source data, test_data.csv,
 # model/*.joblib, results/, and the final documentation required for evaluation.
