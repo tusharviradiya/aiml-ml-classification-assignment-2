@@ -5,9 +5,10 @@ Machine Learning Assignment 2 — local modeling and Streamlit application.
 [Open Chess Endgame Lab on Streamlit Community Cloud](https://chess-endgame-lab-tushar.streamlit.app/)
 
 The five classifiers, saved preprocessing pipelines, held-out evaluation, and
-interactive Streamlit app are implemented and verified locally. The app is now
-deployed on Streamlit Community Cloud. BITS Virtual Lab execution, screenshot,
-and submission PDF are still pending.
+interactive Streamlit app are implemented and verified locally. The app is
+deployed on Streamlit Community Cloud. BITS Virtual Lab project execution
+evidence was captured on 29 October 2026. The submission PDF is available in
+the repository root as `ML_Assignment_2_Submission.pdf`.
 
 ## a. Problem statement
 
@@ -251,14 +252,41 @@ including 99.84% accuracy, with its confusion matrix and classification report.
 | `tests/test_workflow.py` | Saved-artifact, split-integrity and inference validation checks |
 | `tests/test_app.py` | CSV parser and Streamlit interaction checks |
 
-## Remaining assignment work
+## BITS Virtual Lab execution evidence
 
-- Reproduce the full project on BITS Virtual Lab and capture one execution screenshot.
-- Commit and push the required files, and verify evaluator access to both links.
-- Prepare one final PDF containing the GitHub link, live app link, lab screenshot,
-  and this README content, in that order.
+The screenshots captured on **29 October 2026** document:
+
+- [Primary execution evidence: completed training](docs/bits_lab_training.png),
+  showing `python train.py`, all five classifiers, evaluation metrics, and SVM selection.
+- [Project and server execution](docs/bits_lab_execution.png), including a successful
+  dependency check and the Streamlit server running on port 8501.
+- [Supporting cloud application view](docs/bits_lab_cloud.png), showing the public
+  Community Cloud app opened from the lab browser; this is not a lab-hosted app view.
+- [Supporting Git history view](docs/bits_lab_history.png), showing repository history
+  inside the lab terminal; this is not training evidence.
+
+The outer browser address bars are redacted to protect the lab session token.
+Execution output is preserved. The training screenshot reports KNN test F1
+**0.9599**, compared with **0.9661** in the local results table above. The cause
+has not been established; compare the lab code revision, dependencies, and
+selected KNN parameters before claiming exact reproduction. The README metrics
+table continues to describe the committed local artifacts.
+
+## Submission package and final checks
+
+`ML_Assignment_2_Submission.pdf` contains the clickable GitHub link, clickable
+live app link, lab execution evidence, and this README content, in the
+assignment's required order. The completed training screenshot is the primary
+evidence for the requested lab screenshot. Four supplied images are arranged
+two per A4 page, with additional views labeled as supporting evidence.
+
+- Reconcile the KNN difference between the lab training output and local artifacts;
+  retain the lab execution logs for verification.
+- Review and explain the model observations in your own words.
+- Commit and push the updated README, redacted evidence, and submission PDF.
+- Verify evaluator access to both links and check the exported PDF before upload.
 - Submit the final assignment by **8 November 2026, 23:59**.
 
 The assignment allows AI for learning support. Understand, verify, and explain
-the implementation and observations in your own words; this working project is
-not yet a completed submission.
+the implementation and observations in your own words. Creating the PDF does
+not submit it to the assignment portal; complete the portal's final submission step.
