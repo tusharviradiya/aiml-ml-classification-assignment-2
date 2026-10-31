@@ -9,7 +9,7 @@ Positive class: won. Settings selected by five-fold training CV F1.
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Logistic Regression | 0.9734 | 0.9962 | 0.9789 | 0.9701 | 0.9744 | 0.9468 |
 | Decision Tree | 0.9969 | 0.9970 | 1.0000 | 0.9940 | 0.9970 | 0.9938 |
-| KNN | 0.9641 | 0.9939 | 0.9507 | 0.9820 | 0.9661 | 0.9284 |
+| KNN | 0.9578 | 0.9909 | 0.9528 | 0.9671 | 0.9599 | 0.9155 |
 | Naive Bayes | 0.8609 | 0.9513 | 0.8510 | 0.8892 | 0.8697 | 0.7216 |
 | Support Vector Machine | 0.9984 | 0.9999 | 0.9970 | 1.0000 | 0.9985 | 0.9969 |
 
@@ -17,7 +17,7 @@ Positive class: won. Settings selected by five-fold training CV F1.
 | --- | ---: | ---: | ---: | ---: |
 | Logistic Regression | 0.9685 | 0.0067 | 0.9767 | 0.9744 |
 | Decision Tree | 0.9952 | 0.0030 | 1.0000 | 0.9970 |
-| KNN | 0.9494 | 0.0093 | 1.0000 | 0.9661 |
+| KNN | 0.9513 | 0.0091 | 0.9820 | 0.9599 |
 | Naive Bayes | 0.8858 | 0.0139 | 0.8907 | 0.8697 |
 | Support Vector Machine | 0.9966 | 0.0028 | 0.9996 | 0.9985 |
 
@@ -35,7 +35,7 @@ These are results for one held-out split of this restricted endgame dataset. The
 | --- | --- |
 | Logistic Regression | Test F1 0.9744; 7 false wins and 10 missed wins. Training F1 0.9767. An additive linear baseline over encoded categories; it does not explicitly represent feature interactions. |
 | Decision Tree | Test F1 0.9970; 0 false wins and 2 missed wins. Training F1 1.0000. Can learn conjunctions of feature conditions. Compare training and validation results when assessing overfitting. |
-| KNN | Test F1 0.9661; 17 false wins and 6 missed wins. Training F1 1.0000. Distance-weighted training predictions can be perfect because a training row is its own neighbor; cross-validation is the more useful check. |
+| KNN | Test F1 0.9599; 16 false wins and 11 missed wins. Training F1 0.9820. Distance-weighted training predictions can be perfect because a training row is its own neighbor; cross-validation is the more useful check. |
 | Naive Bayes | Test F1 0.8697; 52 false wins and 37 missed wins. Training F1 0.8907. Models indicators as category counts under conditional independence. Dependencies among board descriptors are a possible limitation, not a proven cause of errors. |
 | Support Vector Machine | Test F1 0.9985; 1 false wins and 0 missed wins. Training F1 0.9996. The RBF kernel permits nonlinear feature interactions. Its measured performance applies to this restricted endgame domain. |
 | Overall winner for this dataset | **Support Vector Machine**, selected using the highest mean training cross-validation F1, before test-set comparison. |
