@@ -1,86 +1,62 @@
 # Chess Endgame Outcome Classification
 
-Machine Learning Assignment 2 — local modeling and Streamlit application.
+Machine Learning Assignment 2 · [Live Streamlit app](https://chess-endgame-lab-tushar.streamlit.app/)
 
-[Open Chess Endgame Lab on Streamlit Community Cloud](https://chess-endgame-lab-tushar.streamlit.app/)
-
-The five classifiers, saved preprocessing pipelines, held-out evaluation, and
-interactive Streamlit app are implemented and verified locally. The app is
-deployed on Streamlit Community Cloud. BITS Virtual Lab project execution
-evidence was captured on 29 October 2026. The submission PDF is available in
-the repository root as `ML_Assignment_2_Submission.pdf`.
+Five classifiers, saved preprocessing pipelines, held-out results, and a deployed
+Streamlit app are complete. BITS Virtual Lab execution evidence was captured on
+29 October 2026; the KNN reproduction difference below remains to be reconciled.
 
 ## a. Problem statement
 
-Predict whether White can win a restricted chess endgame from categorical board
-descriptors. The endgame is White king and rook against Black king and a pawn on
-a7, with White to move. The target is `won` (White can win) or `nowin` (White cannot
-win). The project compares five classical classifiers on the same data and test
-positions. It classifies supplied descriptors; it is not a general chess engine.
+Predict whether White can win with a king and rook against Black's king and pawn
+on a7, with White to move. The target is `won` or `nowin`. Five classifiers are
+compared on the same categorical board descriptors and held-out positions.
 
 ## b. Dataset description
 
-- Dataset: **Chess (King-Rook vs. King-Pawn)**, also called **KRKPA7**.
-- Source: [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/22/chess+king+rook+vs+king+pawn).
-- Original format: **3,196 rows, 36 categorical predictors, one class column**.
-- Target counts: `won`: **1,669**; `nowin`: **1,527**.
-- Missing values, duplicate rows, and conflicting feature-vector labels: **none**.
-- Predictor names and observed categories: [dataset audit](data/DATASET_AUDIT.md).
-- Raw files: [data](data/raw/kr-vs-kp.data) and [original documentation](data/raw/kr-vs-kp.names), preserved unchanged.
+- **UCI Chess (King-Rook vs. King-Pawn), KRKPA7**:
+  [dataset source](https://archive.ics.uci.edu/dataset/22/chess+king+rook+vs+king+pawn).
+- **3,196 rows and 36 categorical predictors**, plus target `outcome`.
+- Class counts: **1,669 won**, **1,527 nowin**; no missing values or duplicate rows.
+- Original [data](data/raw/kr-vs-kp.data) and [documentation](data/raw/kr-vs-kp.names)
+  are preserved; the [dataset audit](data/DATASET_AUDIT.md) records schema checks.
 
-The original documentation explicitly lists 36 predictors followed by the target.
-The current UCI landing page has inconsistent feature metadata, so this project
-uses and verifies the original schema rather than relying on automatic import
-roles. Published feature abbreviations are retained; detailed meanings should
-not be inferred without the cited source material.
+The original documentation and raw data confirm 36 predictors despite inconsistent
+feature metadata on the UCI landing page.
 
-Citation: Shapiro, A. (1983). *Chess (King-Rook vs. King-Pawn)* [Dataset].
-UCI Machine Learning Repository. [DOI: 10.24432/C5DK5C](https://doi.org/10.24432/C5DK5C).
-UCI lists the dataset under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+Citation: Shapiro, A. (1983). *Chess (King-Rook vs. King-Pawn)*. UCI Machine Learning
+Repository. [DOI: 10.24432/C5DK5C](https://doi.org/10.24432/C5DK5C),
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ## c. GitHub Repository Link
 
 [tusharviradiya/aiml-ml-classification-assignment-2](https://github.com/tusharviradiya/aiml-ml-classification-assignment-2)
 
-The repository records the modeling work in separate commits for environment
-setup, dataset auditing, implementation, saved artifacts, tests, and documentation.
-See [the Git workflow](docs/GIT_WORKFLOW.md) for future development steps.
-
 ## d. Models used
 
-Logistic Regression, Decision Tree Classifier, K-Nearest Neighbor Classifier,
-Multinomial Naive Bayes, and RBF Support Vector Machine.
+Logistic Regression, Decision Tree, K-Nearest Neighbors, Multinomial Naive Bayes,
+and RBF Support Vector Machine.
 
 ### Evaluation procedure
 
-1. Read all 36 predictors as categorical values. Name the final target column
-   `outcome`; map `nowin` to 0 and `won` to 1.
-2. Make one stratified 80/20 split with seed 42: **2,556 training positions** and
-   **640 held-out positions**. Keep the target in the exported CSV files.
-3. Fit full one-hot encoding inside each training pipeline. The 0/1 indicators
-   need no additional numeric scaling. All classifiers use the same raw inputs.
-4. Choose settings by five-fold stratified cross-validation **within training
-   data only**, maximizing positive-class F1. `train.py` contains the exact grids;
-   all candidate results are saved under `results/*_cv.csv`.
-5. Refit the selected settings on all training rows and save each complete pipeline
-   under `model/`. The overall classifier is selected by training CV F1.
-6. Evaluate the saved pipelines on `test_data.csv`, without training on those rows.
+1. Map `nowin` to 0 and `won` to 1. Use a stratified 80/20 split with seed 42:
+   **2,556 training rows and 640 held-out test rows**.
+2. Fit one-hot encoding within each pipeline and training fold. The binary
+   indicators require no additional scaling and satisfy Multinomial NB's
+   nonnegative-input requirement.
+3. Select parameters by **five-fold stratified training cross-validation F1**;
+   refit each selected pipeline on the training set and save it under `model/`.
+4. Select the overall winner by training CV F1, then evaluate all five saved
+   pipelines on the same test set. The app never fits uploaded data.
 
-One category, `spcop=t`, appears only once. An encoder trained on a fold may not
-see it; valid unseen categories map to an all-zero block for that field.
-`evaluation.py` separately rejects invalid codes using the audited category
-domains. It also checks columns, missing values, and target labels. It returns
-an unavailable AUC with an explanation if an uploaded subset contains one class.
-
-Multinomial Naive Bayes treats each one-hot field as one category occurrence.
-This preserves nonnegative count inputs and meets the assignment's allowed
-Naive Bayes variant. Its independence assumptions are a limitation worth
-discussing. SVM uses decision values for AUC; they are not probabilities.
+`train.py` defines the grids; `results/*_cv.csv` stores all candidates. The rare
+valid category `spcop=t` can be unseen during training, so the encoder ignores
+unknown categories; separate validation rejects codes outside the audited domains.
 
 ### Comparison and observations
 
-This section is regenerated by training. Review the observations and develop
-your own explanation of the results before submitting the assignment.
+The following section is generated by training. Review and explain the observations
+in your own words before submission.
 
 <!-- MODEL_RESULTS_START -->
 
@@ -128,165 +104,99 @@ A false win means predicting won for a nowin position; a missed win means predic
 
 <!-- MODEL_RESULTS_END -->
 
-## Reproduce the local modeling workflow
+## Reproduce the project
 
-The installed versions are pinned in `requirements.txt`. They require Python
-3.12 or newer; this run was verified on **Python 3.14.4**. Use an isolated
-environment and the same pinned dependencies when loading saved models.
-
-Run these commands from the repository root on Linux or BITS Virtual Lab:
+Use **Python 3.12 or newer**; the saved run was verified on **Python 3.14.4**.
+Install the pinned dependencies from the repository root:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+```
+
+To reproduce training and validate the project locally or on BITS Virtual Lab:
+
+```bash
 python scripts/audit_dataset.py
 python train.py
 python -m unittest discover -s tests -v
 python -m pip check
 ```
 
-Training overwrites generated models, split CSVs, results, and the marked README
-section. Keep the seed and original input files unchanged to reproduce the split.
-Numerical results can vary slightly across platforms; the exact source indices,
-checksums, package versions, selected settings, and run time are recorded in
-`results/manifest.json` and `results/evaluation.json`.
+Training overwrites saved models, splits, results, and the marked README section.
+Keep the original data, seed, and dependencies unchanged. Versions, source-row
+indices and checksums are recorded in `results/manifest.json`; selected parameters
+and detailed evaluations are in `results/evaluation.json`.
 
-To inspect a saved model without retraining:
+## Run and use the app
 
-```python
-import joblib
-import pandas as pd
-from evaluation import evaluate_model
-
-model = joblib.load("model/svm.joblib")
-test = pd.read_csv("test_data.csv", dtype=str)
-result = evaluate_model(model, test)
-print(result["metrics"])
-print(result["confusion_matrix"])
-```
-
-The expected CSV schema is the 36 original feature columns plus `outcome`.
-Column order may vary; the evaluator restores model order. Target values must be
-`won` or `nowin`. Use `test_data.csv` as the example upload.
-
-## Run Chess Endgame Lab locally
-
-After installing the pinned requirements, run:
+The committed models are ready to load; training is not required to start the app.
 
 ```bash
 .venv/bin/python -m streamlit run app.py
 ```
-if want to run app and share url to same lan devcies run like this:
-```bash
-.venv/bin/python -m streamlit run app.py --server.address 0.0.0.0 --server.port 8501
-```
 
-Open **http://localhost:8501** in your browser. The app loads the saved models;
-starting it does not require a training run.
+Open **http://localhost:8501**, or use the
+[deployed app](https://chess-endgame-lab-tushar.streamlit.app/).
 
-1. Start with **Bundled test set** to evaluate the committed 640 held-out positions.
-2. Use the classifier dropdown to inspect any of the five saved models.
-3. View all six metrics, the confusion matrix, classification report, and ROC curve.
-4. Open **Compare models** for metrics calculated on the current test data
-   and a downloadable comparison CSV.
-5. Download the example CSV, select **Upload CSV**, and upload that file to verify
-   the labeled-data evaluation path. Uploaded files must be UTF-8 CSV, no larger
-   than 2 MB, with at most 5,000 test positions.
-6. Open **Positions** to filter errors and download the selected
-   model's predictions. Test row numbers refer to data rows in the current CSV.
+1. Select the bundled 640-row test set or upload a labeled CSV, then choose a model.
+2. View six metrics, the confusion matrix, classification report and ROC curve.
+3. Use **Compare models** for all five models and **Positions** to inspect errors;
+   download comparisons or predictions as CSV.
 
-Uploads are processed in memory and are not written to the repository. The
-current evaluation is retained only in that visitor's session so dropdown and
-filter changes can reuse it. New CSV content or a changed saved model triggers
-fresh evaluation; clearing an upload discards the session result. Only the saved
-classifiers use Streamlit's shared cache. No fitting or tuning occurs in the app.
-Invalid columns, duplicate headers, malformed rows, unsupported categories and
-labels produce readable errors. With one target class, AUC displays **N/A** with
-an explanation; the other metrics and 2×2 confusion matrix remain available.
+Uploads must be UTF-8 CSV with all 36 original predictors and target `outcome`
+(`won`/`nowin`), up to **2 MB and 5,000 rows**. Column order may vary; use
+`test_data.csv` as the example. Invalid schemas, categories or labels produce
+readable errors. For single-class uploads, AUC displays **N/A** with an explanation.
+Uploads stay in memory within the visitor's session; no training occurs in the app.
 
-Theme and upload limits are configured in `.streamlit/config.toml`. No secrets
-are needed to run this app. Streamlit's usage telemetry is disabled.
+### Validation
 
-### Local validation
+The 16 automated checks cover split integrity, saved-model results, CSV validation,
+all five model choices, uploads without fitting, error filtering and session reuse
+and isolation. Phone-to-desktop layout checks are documented in the
+[responsiveness report](docs/RESPONSIVENESS.md).
 
-The 16 automated checks cover saved-model reproducibility, split integrity,
-CSV parsing, all five dropdown choices, live upload evaluation without fitting,
-invalid uploads, clearing and replacing a file, error filtering, single-class
-data, missing saved models, and session-result reuse, isolation and invalidation.
-They use Streamlit's `AppTest` API to exercise the interface. The local server
-health endpoint was also checked successfully. The responsive layout was tested
-in headless Chrome at phone, tablet, laptop and desktop sizes; see the
-[responsiveness report](docs/RESPONSIVENESS.md) for measurements and review steps.
-
-```bash
-.venv/bin/python -m unittest discover -s tests -v
-.venv/bin/python -m pip check
-```
-
-Live Streamlit Community Cloud URL:
-[Chess Endgame Lab](https://chess-endgame-lab-tushar.streamlit.app/).
-
-A signed-out Chrome check on 28 October 2026 confirmed that the public app loads
-the 640-position bundled test set and displays the expected six SVM metrics,
-including 99.84% accuracy, with its confusion matrix and classification report.
-
-## Files and generated artifacts
+## Key files
 
 | Path | Purpose |
 | --- | --- |
-| `app.py` | Streamlit upload, model selection, metrics, charts and downloads |
-| `app_data.py` | Strict CSV parsing and saved-model inference for the app |
-| `.streamlit/config.toml` | Visual theme, upload limit and telemetry setting |
-| `scripts/audit_dataset.py` | Standard-library audit of the original data |
-| `dataset.py` | Original feature order, label mapping, category validation domains |
-| `train.py` | Reproducible split, training CV, model saving, and evaluation |
-| `evaluation.py` | Shared validation, inference, six metrics, confusion matrix and report |
-| `data/train_data.csv` | Training positions with target |
-| `test_data.csv` | Held-out positions with target; bundled app data and example upload |
-| `model/*.joblib` | All five trained classifiers with fitted encoders |
-| `results/metrics.csv` | Six test metrics plus training/CV F1 |
-| `results/evaluation.json` | Parameters, metrics, confusion matrices and reports |
-| `results/test_predictions.csv` | Per-model predictions and scores on the held-out rows |
-| `results/manifest.json` | Reproduction details and original zero-based row indices |
-| `tests/test_workflow.py` | Saved-artifact, split-integrity and inference validation checks |
-| `tests/test_app.py` | CSV parser and Streamlit interaction checks |
+| `app.py`, `app_data.py` | Streamlit interface, CSV parsing and saved-model inference |
+| `dataset.py`, `evaluation.py` | Schema validation and shared evaluation |
+| `train.py` | Split, cross-validation, training and artifact generation |
+| `data/raw/`, `scripts/audit_dataset.py` | Original dataset and audit |
+| `data/train_data.csv`, `test_data.csv` | Training and held-out labeled data |
+| `model/*.joblib` | Five fitted classifiers with preprocessing |
+| `results/` | Metrics, CV results, parameters, predictions and run manifest |
+| `tests/` | Workflow and Streamlit interaction checks |
 
 ## BITS Virtual Lab execution evidence
 
-The screenshots captured on **29 October 2026** document:
+Screenshots from **29 October 2026**:
 
-- [Primary execution evidence: completed training](docs/bits_lab_training.png),
-  showing `python train.py`, all five classifiers, evaluation metrics, and SVM selection.
-- [Project and server execution](docs/bits_lab_execution.png), including a successful
-  dependency check and the Streamlit server running on port 8501.
-- [Supporting cloud application view](docs/bits_lab_cloud.png), showing the public
-  Community Cloud app opened from the lab browser; this is not a lab-hosted app view.
-- [Supporting Git history view](docs/bits_lab_history.png), showing repository history
-  inside the lab terminal; this is not training evidence.
+- [Completed training — primary evidence](docs/bits_lab_training.png): all five
+  classifiers, evaluation metrics and SVM selection.
+- [Project and Streamlit server](docs/bits_lab_execution.png): dependency check
+  and server running on port 8501.
+- Supporting views: [public cloud app](docs/bits_lab_cloud.png) and
+  [Git history](docs/bits_lab_history.png) opened within the lab session.
 
-The outer browser address bars are redacted to protect the lab session token.
-Execution output is preserved. The training screenshot reports KNN test F1
-**0.9599**, compared with **0.9661** in the local results table above. The cause
-has not been established; compare the lab code revision, dependencies, and
-selected KNN parameters before claiming exact reproduction. The README metrics
-table continues to describe the committed local artifacts.
+Browser address bars are redacted to protect the session token. The cloud view
+shows the public deployment; completed lab training is shown in the primary image.
 
-## Submission package and final checks
+**Reproduction issue:** lab KNN test F1 is **0.9599**, versus **0.9661** in the
+committed local artifacts. The cause is unconfirmed. Compare the lab revision,
+dependencies and selected KNN parameters before claiming exact reproduction.
+The results table above describes the local artifacts.
 
-`ML_Assignment_2_Submission.pdf` contains the clickable GitHub link, clickable
-live app link, lab execution evidence, and this README content, in the
-assignment's required order. The completed training screenshot is the primary
-evidence for the requested lab screenshot. Four supplied images are arranged
+## Submission
+
+`ML_Assignment_2_Submission.pdf` contains the clickable GitHub and live app links,
+lab evidence, and full README in the required order. Four screenshots are arranged
 two per A4 page, with additional views labeled as supporting evidence.
 
-- Reconcile the KNN difference between the lab training output and local artifacts;
-  retain the lab execution logs for verification.
-- Review and explain the model observations in your own words.
-- Commit and push the updated README, redacted evidence, and submission PDF.
-- Verify evaluator access to both links and check the exported PDF before upload.
-- Submit the final assignment by **8 November 2026, 23:59**.
-
-The assignment allows AI for learning support. Understand, verify, and explain
-the implementation and observations in your own words. Creating the PDF does
-not submit it to the assignment portal; complete the portal's final submission step.
+Before submitting, reconcile the KNN difference, explain the observations in your
+own words, push final changes, and verify both links and the PDF. The assignment
+allows AI for learning support; understand and verify your implementation.
+Upload the final PDF to the portal by **8 November 2026, 23:59**.
