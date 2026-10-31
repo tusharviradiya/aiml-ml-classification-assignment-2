@@ -35,9 +35,9 @@ These are results for one held-out split of this restricted endgame dataset. The
 | --- | --- |
 | Logistic Regression | Test F1 0.9744; 7 false wins and 10 missed wins. Training F1 0.9767. An additive linear baseline over encoded categories; it does not explicitly represent feature interactions. |
 | Decision Tree | Test F1 0.9970; 0 false wins and 2 missed wins. Training F1 1.0000. Can learn conjunctions of feature conditions. Compare training and validation results when assessing overfitting. |
-| KNN | Test F1 0.9599; 16 false wins and 11 missed wins. Training F1 0.9820. Distance-weighted training predictions can be perfect because a training row is its own neighbor; cross-validation is the more useful check. |
+| KNN | Test F1 0.9599; 16 false wins and 11 missed wins. Training F1 0.9820. The selected model uses 5 neighbors with uniform weighting. Its mean CV F1 is 0.9513; the higher training score indicates optimistic training-set performance. Equal-distance neighbors limit cross-environment reproducibility, as documented in README.md. |
 | Naive Bayes | Test F1 0.8697; 52 false wins and 37 missed wins. Training F1 0.8907. Models indicators as category counts under conditional independence. Dependencies among board descriptors are a possible limitation, not a proven cause of errors. |
 | Support Vector Machine | Test F1 0.9985; 1 false wins and 0 missed wins. Training F1 0.9996. The RBF kernel permits nonlinear feature interactions. Its measured performance applies to this restricted endgame domain. |
 | Overall winner for this dataset | **Support Vector Machine**, selected using the highest mean training cross-validation F1, before test-set comparison. |
 
-A false win means predicting won for a nowin position; a missed win means predicting nowin for a won position. Small score differences on one split do not establish statistical superiority. These observations should be reviewed and developed in the student's own words before submission.
+A false win means predicting won for a nowin position; a missed win means predicting nowin for a won position. Small score differences on one split do not establish statistical superiority.
