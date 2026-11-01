@@ -200,9 +200,10 @@ pipelines also reproduce their recorded metrics.
 metrics match the revised local run: accuracy **96.09%**, AUC **0.9932**,
 precision **0.9478**, recall **0.9790**, F1 **0.9632** and MCC **0.9222**.
 The confusion matrix also matches: `[[288, 18], [7, 327]]` in `[nowin, won]`
-order. The [deployed KNN screenshot](docs/streamlit_knn_verification.png) records
-this check and is included in the submission PDF as an application preview.
-The configuration and displayed values agree with the final lab run.
+order. The [Streamlit screenshot captured from BITS Virtual Lab](docs/streamlit_knn_verification.png),
+taken at **13:14 on 1 November 2026**, records the deployed app open in the lab
+browser and is included in the PDF. The lab context and public app URL remain
+visible. The configuration and displayed values agree with the final lab run.
 
 ## Key files
 
@@ -227,8 +228,12 @@ as `87ef6e9`:
   KNN test F1 is **0.9632**, matching the comparison table.
 - [Passed tests and dependency check](docs/bits_lab_execution.png), 12:44:
   **Ran 17 tests**, **OK**, and **No broken requirements found**.
+- [Streamlit app opened from BITS Virtual Lab](docs/streamlit_knn_verification.png),
+  13:14: the public deployed app, model selector, six KNN metrics, confusion matrix
+  and classification report, with the lab browser context visible.
 
-Only the outer lab browser address bars are redacted to remove session tokens.
+Session details in the outer lab browser address bars are redacted. The app
+capture retains the public lab hostname, lab title and public Streamlit URL.
 The rest of each screenshot, including the terminal output, is preserved. The
 training-source and metrics hashes in `docs/lab_evidence.json` match the final
 run. The prior KNN discrepancy is resolved for the verified local, lab and public
@@ -239,8 +244,8 @@ app results. Future changes to the data order or dependencies require rechecking
 `ML_Assignment_2_Submission.pdf` contains the clickable GitHub and live app links,
 lab evidence, a deployed Streamlit application screenshot, and the full README.
 The two final lab screenshots are arranged together on an A4 page, followed by a
-separate Streamlit application preview page. The required submission order is
-preserved.
+separate page showing the Streamlit app opened from BITS Virtual Lab. The required
+submission order is preserved.
 
 The PDF was refreshed on **1 November 2026** with the final lab results, new
 redacted training/test evidence and this README. The assignment allows AI for

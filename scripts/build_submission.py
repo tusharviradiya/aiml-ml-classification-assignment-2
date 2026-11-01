@@ -94,11 +94,12 @@ def submission_html():
         f'<p class="intro">Live application: <a href="{APP}">{APP}</a></p>'
         + figure({
             "file": "streamlit_knn_verification.png",
-            "title": "KNN evaluation on the bundled test set",
-            "caption": "The deployed Streamlit interface shows the model selector, all six "
-            "evaluation metrics, confusion matrix and classification report. KNN F1 is "
-            "0.9632 and AUC is 0.9932, matching the final lab results. CSV upload is "
-            "available through the Upload CSV option in the sidebar.",
+            "title": "Streamlit app opened from BITS Virtual Lab",
+            "caption": "1 November 2026, 13:14. The public Streamlit app is open inside "
+            "the BITS Virtual Lab browser. The lab title, public lab hostname and app URL "
+            "are preserved; session details are redacted. All six KNN metrics match the "
+            "final lab results, including F1 0.9632 and AUC 0.9932. Training execution "
+            "is documented on the preceding evidence page.",
         }) + "</section>"
     )
     return (
