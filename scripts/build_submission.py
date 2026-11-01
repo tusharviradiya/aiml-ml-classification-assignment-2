@@ -89,10 +89,22 @@ def submission_html():
             + '<p class="note">Outer lab browser address bars are redacted. '
             'Execution output is preserved.</p></section>'
         )
+    app_preview = (
+        '<section class="evidence"><h2>Streamlit application preview</h2>'
+        f'<p class="intro">Live application: <a href="{APP}">{APP}</a></p>'
+        + figure({
+            "file": "streamlit_knn_verification.png",
+            "title": "KNN evaluation on the bundled test set",
+            "caption": "The deployed Streamlit interface shows the model selector, all six "
+            "evaluation metrics, confusion matrix and classification report. KNN F1 is "
+            "0.9632 and AUC is 0.9932, matching the final lab results. CSV upload is "
+            "available through the Upload CSV option in the sidebar.",
+        }) + "</section>"
+    )
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         f'<title>ML Assignment 2 Submission</title><style>{css}</style></head><body>'
-        + cover + evidence1 + evidence2
+        + cover + evidence1 + evidence2 + app_preview
         + '<main><p class="readme-label">4. Project README</p>' + readme + "</main></body></html>"
     )
 

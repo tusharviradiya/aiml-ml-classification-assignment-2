@@ -201,7 +201,8 @@ metrics match the revised local run: accuracy **96.09%**, AUC **0.9932**,
 precision **0.9478**, recall **0.9790**, F1 **0.9632** and MCC **0.9222**.
 The confusion matrix also matches: `[[288, 18], [7, 327]]` in `[nowin, won]`
 order. The [deployed KNN screenshot](docs/streamlit_knn_verification.png) records
-this check. The configuration and displayed values agree with the final lab run.
+this check and is included in the submission PDF as an application preview.
+The configuration and displayed values agree with the final lab run.
 
 ## Key files
 
@@ -236,8 +237,10 @@ app results. Future changes to the data order or dependencies require rechecking
 ## Submission
 
 `ML_Assignment_2_Submission.pdf` contains the clickable GitHub and live app links,
-lab evidence, and full README in the required order. The two final lab screenshots
-are arranged together on an A4 page.
+lab evidence, a deployed Streamlit application screenshot, and the full README.
+The two final lab screenshots are arranged together on an A4 page, followed by a
+separate Streamlit application preview page. The required submission order is
+preserved.
 
 The PDF was refreshed on **1 November 2026** with the final lab results, new
 redacted training/test evidence and this README. The assignment allows AI for
