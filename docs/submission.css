@@ -1,0 +1,35 @@
+@page {size:A4; margin:17mm 16mm 18mm;
+  @bottom-right {content:counter(page);font:9pt Arial,sans-serif;color:#52645a;}
+}
+* {box-sizing:border-box;}
+body {margin:0;font:10pt/1.4 Arial,sans-serif;color:#202a25;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+h1,h2,h3,h4 {color:#000;line-height:1.2;break-after:avoid;}
+h1 {font-size:20pt;margin:5mm 0;}
+h2 {font-size:14pt;margin:6mm 0 3mm;}
+h3 {font-size:11.5pt;margin:5mm 0 2mm;}
+a {color:#175b7f;overflow-wrap:anywhere;}
+p,li {orphans:3;widows:3;} p {break-inside:avoid;}
+table {width:100%;border-collapse:collapse;font-size:8.3pt;margin:9pt 0;break-inside:avoid;}
+th,td {border:1px solid #ccd5cf;padding:5pt;text-align:left;vertical-align:top;}
+th {background:#e9f0ea;color:#000;} tr {break-inside:avoid;}
+pre {background:#f2f4f1;border:1px solid #dce2dc;padding:8pt;white-space:pre-wrap;break-inside:avoid;}
+code {font-family:Consolas,'DejaVu Sans Mono',monospace;font-size:8.5pt;overflow-wrap:anywhere;}
+.cover {break-after:page;}
+.cover .eyebrow {font-size:9pt;letter-spacing:1.3px;color:#52645a;margin:0 0 14mm;}
+.cover h1 {font-size:30pt;margin:0 0 4mm;}
+.cover .subtitle {font-size:19pt;line-height:1.25;margin:0 0 3mm;}
+.cover .dataset {font-size:11pt;color:#52645a;margin-bottom:10mm;}
+.cover .identity p {margin:2mm 0;}
+.link-card {border:1px solid #ccd5cf;border-left:4px solid #1e5c47;padding:5mm;margin-top:8mm;break-inside:avoid;}
+.link-card h2 {margin:0 0 3mm;font-size:14pt;}
+.link-card p {margin:3mm 0 0;}
+.cover .run-note {margin-top:9mm;font-size:9pt;color:#52645a;}
+.evidence {break-after:page;}
+.evidence h2 {font-size:19pt;margin:0 0 4mm;}
+.evidence .intro {font-size:9pt;margin:0 0 4mm;}
+figure {margin:0 0 4mm;break-inside:avoid;}
+figure h3 {margin:0 0 2mm;font-size:11pt;}
+figure img {display:block;width:100%;height:auto;border:1px solid #ccd5cf;}
+figcaption {font-size:8.3pt;line-height:1.3;margin-top:1.5mm;color:#43574b;}
+.evidence .note {font-size:8.3pt;margin:2mm 0 0;}
+.readme-label {font-size:10pt;font-weight:bold;margin:0 0 3mm;}

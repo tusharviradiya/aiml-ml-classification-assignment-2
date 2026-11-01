@@ -1,0 +1,29 @@
+{
+  "captured_date": "1 November 2026",
+  "artifact_revision": "ff29951",
+  "training_source_sha256": "9f87267aebe8602b7782e56505ae7c478949dbd4c1c87ec26b0174f4dd886fa0",
+  "metrics_sha256": "07a8d4cc84705d55b7c908393a598b17a2c9db598e2160b5ace9e42d57c0ff90",
+  "knn_test_f1": 0.9598811292719168,
+  "figures": [
+    {
+      "file": "bits_lab_training.png",
+      "title": "Completed model training",
+      "caption": "All five classifiers completed training in BITS Virtual Lab; SVM was selected. This run used the preceding KNN configuration (test F1 0.9599)."
+    },
+    {
+      "file": "bits_lab_execution.png",
+      "title": "Project and README in the lab",
+      "caption": "Project files and README viewed inside the lab session. Text visible inside this capture belongs to that earlier revision."
+    },
+    {
+      "file": "bits_lab_cloud.png",
+      "title": "Public Streamlit Community Cloud application",
+      "caption": "The public cloud app opened from the lab browser. This demonstrates the deployment interface; completed lab training is shown in the preceding capture."
+    },
+    {
+      "file": "bits_lab_history.png",
+      "title": "Pushed artifact revision in the lab terminal",
+      "caption": "Git history shows ff29951 as HEAD, main and origin/main. The capture documents that earlier pushed artifact revision."
+    }
+  ]
+}

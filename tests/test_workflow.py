@@ -10,7 +10,9 @@ import unittest
 import joblib
 import numpy as np
 import pandas as pd
+from sklearn import config_context
 from sklearn.metrics import roc_auc_score
+from threadpoolctl import threadpool_limits
 
 from dataset import ROOT, TARGET, load_dataset
 from evaluation import evaluate_model
@@ -35,6 +37,10 @@ class SavedWorkflowTests(unittest.TestCase):
         pd.testing.assert_frame_equal(source.loc[test_ids].reset_index(drop=True), self.test)
         for filename, expected in self.manifest["sha256"].items():
             self.assertEqual(hashlib.sha256((ROOT / filename).read_bytes()).hexdigest(), expected)
+        for filename, expected in self.manifest["source_sha256"].items():
+            self.assertEqual(hashlib.sha256((ROOT / filename).read_bytes()).hexdigest(), expected)
+        for filename, expected in self.manifest["model_sha256"].items():
+            self.assertEqual(hashlib.sha256((ROOT / "model" / filename).read_bytes()).hexdigest(), expected)
 
     def test_five_saved_models_reproduce_recorded_metrics(self):
         self.assertEqual(len(self.results), 5)
@@ -75,6 +81,35 @@ class SavedWorkflowTests(unittest.TestCase):
             with self.subTest(columns=list(frame.columns), rows=len(frame)):
                 with self.assertRaises(ValueError):
                     evaluate_model(model, frame)
+
+    def test_knn_predictions_and_probabilities_are_stable_across_query_paths(self):
+        # Categorical indicators create many equally distant neighbors. The old
+        # brute-force model changed scores under these calculation settings.
+        pipeline = joblib.load(ROOT / "model/knn.joblib")
+        X = pipeline.named_steps["encode"].transform(self.test.drop(columns=TARGET))
+        classifier = pipeline.named_steps["model"]
+        expected_labels = classifier.predict(X)
+        expected_probabilities = classifier.predict_proba(X)
+        for cython in [True, False]:
+            for threads in [1, 2]:
+                with self.subTest(cython=cython, threads=threads), config_context(
+                    enable_cython_pairwise_dist=cython,
+                ), threadpool_limits(limits=threads):
+                    np.testing.assert_array_equal(classifier.predict(X), expected_labels)
+                    np.testing.assert_array_equal(
+                        classifier.predict_proba(X), expected_probabilities,
+                    )
+        for size in [1, 17, len(X)]:
+            with self.subTest(batch_size=size):
+                labels = np.concatenate([
+                    classifier.predict(X[start:start + size]) for start in range(0, len(X), size)
+                ])
+                probabilities = np.concatenate([
+                    classifier.predict_proba(X[start:start + size])
+                    for start in range(0, len(X), size)
+                ])
+                np.testing.assert_array_equal(labels, expected_labels)
+                np.testing.assert_array_equal(probabilities, expected_probabilities)
 
     def test_single_class_test_data_has_explicitly_unavailable_auc(self):
         model = joblib.load(ROOT / "model/svm.joblib")

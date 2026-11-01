@@ -4,6 +4,7 @@ Run: python train.py
 Settings are chosen by five-fold training CV F1; the test set never enters CV.
 """
 
+import argparse
 import hashlib
 import json
 import platform
@@ -36,7 +37,13 @@ def model_specs():
         ("decision_tree", "Decision Tree",
          DecisionTreeClassifier(random_state=SEED),
          {"model__max_depth": [5, 10, None], "model__min_samples_leaf": [1, 5, 10]}),
-        ("knn", "KNN", KNeighborsClassifier(),
+        # On one-hot inputs Manhattan distances are sums of exact 0/1
+        # differences. An explicit tree search avoids the varying brute-force
+        # calculation paths observed in the earlier run. Preserve row order
+        # and library versions: equally distant neighbors can still tie.
+        ("knn", "KNN", KNeighborsClassifier(
+            algorithm="kd_tree", metric="manhattan", n_jobs=1,
+        ),
          {"model__n_neighbors": [3, 5, 11, 21], "model__weights": ["uniform", "distance"]}),
         ("naive_bayes", "Naive Bayes", MultinomialNB(), {"model__alpha": [0.1, 1, 10]}),
         ("svm", "Support Vector Machine", SVC(kernel="rbf", random_state=SEED),
@@ -49,17 +56,34 @@ def write_json(path, value):
 
 
 def render_observations(details, winner):
+    knn = details["knn"]["model_parameters"]
+    knn_training_note = (
+        "With distance weighting, a training row is its own zero-distance neighbor; "
+        "a perfect training score therefore does not establish generalization."
+        if knn["weights"] == "distance" else
+        "Uniform weighting gives each selected neighbor the same vote; "
+        "the training score remains optimistic because each row can be its own neighbor."
+    )
     explanations = {
-        "logistic_regression": "An additive linear baseline over encoded categories; "
-        "it does not explicitly represent feature interactions.",
-        "decision_tree": "Can learn conjunctions of feature conditions. Compare training "
-        "and validation results when assessing overfitting.",
-        "knn": "Distance-weighted training predictions can be perfect because a training "
-        "row is its own neighbor; cross-validation is the more useful check.",
-        "naive_bayes": "Models indicators as category counts under conditional independence. "
-        "Dependencies among board descriptors are a possible limitation, not a proven cause of errors.",
-        "svm": "The RBF kernel permits nonlinear feature interactions. Its measured performance "
-        "applies to this restricted endgame domain.",
+        "logistic_regression": "The small training/test F1 gap suggests limited overfitting "
+        "on this split. Its additive linear boundary makes more test errors than the tree "
+        "and RBF SVM, which can represent feature interactions.",
+        "decision_tree": "The unrestricted-depth tree fits the training labels perfectly, "
+        "but its high CV and test F1 also support strong generalization on this split. "
+        "Training perfection alone is not evidence of severe overfitting. The learned "
+        "conjunctions of descriptor conditions suit this rule-based endgame task.",
+        "knn": f"CV selected k={knn['n_neighbors']} and {knn['weights']} weighting. "
+        f"{knn_training_note} The training/CV gap shows why held-out evaluation matters. "
+        "Manhattan distance and an explicit KD-tree search are used; regression checks "
+        "compare predictions and probabilities across calculation settings and batch sizes.",
+        "naive_bayes": "Both training and CV F1 are lower than for the other classifiers, "
+        "suggesting limited model fit rather than only a large train/test overfitting gap. "
+        "Its conditional-independence assumption may be restrictive for related board "
+        "descriptors; this is a possible explanation, not an established cause.",
+        "svm": "The RBF kernel allows nonlinear feature interactions. High training, CV "
+        "and test F1 support the fit on these positions, while the high test MCC shows "
+        "strong agreement across both labels. Its ranking is based on training CV, "
+        "not on choosing the best held-out score.",
     }
     lines = ["## Observations", "", "| ML Model Name | Observation about model performance |",
              "| --- | --- |"]
@@ -69,14 +93,25 @@ def render_observations(details, winner):
         lines.append(
             f"| {result['name']} | Test F1 {result['metrics']['F1']:.4f}; "
             f"{fp} false wins and {fn} missed wins. "
-            f"Training F1 {result['training_metrics']['F1']:.4f}. {explanations[key]} |"
+            f"Training F1 {result['training_metrics']['F1']:.4f}; "
+            f"CV F1 {result['cv_f1_mean']:.4f} +/- {result['cv_f1_std']:.4f}. "
+            f"{explanations[key]} |"
         )
-    lines.append(f"| Overall winner for this dataset | **{winner}**, selected using the "
-                 "highest mean training cross-validation F1, before test-set comparison. |")
+    ranked = sorted(details.values(), key=lambda result: result["cv_f1_mean"], reverse=True)
+    best, runner_up = ranked[:2]
+    best_errors = sum(best["confusion_matrix"][i][1 - i] for i in range(2))
+    runner_errors = sum(runner_up["confusion_matrix"][i][1 - i] for i in range(2))
+    lines.append(f"| Overall winner for this dataset | **{winner}**, selected by the "
+                 f"highest mean training CV F1. Its advantage over {runner_up['name']} "
+                 f"is {best['cv_f1_mean'] - runner_up['cv_f1_mean']:.4f}; "
+                 f"the test error counts are {best_errors} versus {runner_errors}. "
+                 "The runner-up is competitive, and this small difference does not "
+                 "establish statistical superiority. |")
     lines += ["", "A false win means predicting won for a nowin position; a missed win means "
               "predicting nowin for a won position. Small score differences on one split "
-              "do not establish statistical superiority. These observations should be "
-              "reviewed and developed in the student's own words before submission."]
+              "do not establish statistical superiority. The test set was not used to "
+              "select hyperparameters or the winner. These results concern one split "
+              "of KRKPA7, not arbitrary chess positions."]
     return lines
 
 
@@ -94,6 +129,12 @@ def update_readme(report):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--environment", choices=["local", "bits-lab", "unspecified"], default="unspecified",
+        help="Record where this run was performed; screenshots provide separate lab evidence.",
+    )
+    args = parser.parse_args()
     frame = load_dataset()
     train, test = train_test_split(
         frame, test_size=0.2, random_state=SEED, stratify=frame[TARGET],
@@ -139,6 +180,9 @@ def main():
         predictions[f"{name} score"] = result.pop("scores")
         details[key] = {
             "name": name, "best_parameters": search.best_params_,
+            "model_parameters": restored.named_steps["model"].get_params(deep=False),
+            "cv_f1_mean": float(search.best_score_),
+            "cv_f1_std": float(search.cv_results_["std_test_score"][search.best_index_]),
             "training_metrics": train_result["metrics"], **result,
         }
         pd.DataFrame(search.cv_results_).to_csv(results_dir / f"{key}_cv.csv", index=False)
@@ -153,6 +197,7 @@ def main():
     manifest = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "python": platform.python_version(),
+        "execution_environment": args.environment,
         "packages": {name: version(name) for name in ["numpy", "pandas", "scikit-learn", "scipy", "joblib"]},
         "seed": SEED, "test_fraction": 0.2, "cv_folds": 5,
         "selection_metric": "Mean stratified training CV F1 (won is positive)",
@@ -165,9 +210,14 @@ def main():
         "test_class_counts": test[TARGET].value_counts().to_dict(),
         "sha256": {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
                    for path in ["data/raw/kr-vs-kp.data", "data/raw/kr-vs-kp.names", "test_data.csv"]},
+        "source_sha256": {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+                          for path in ["train.py", "dataset.py", "evaluation.py"]},
+        "model_sha256": {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                         for path in sorted(model_dir.glob("*.joblib"))},
     }
     write_json(results_dir / "manifest.json", manifest)
     lines = ["# Model evaluation", "", "Generated by `python train.py`.", "",
+             f"Recorded execution environment: {args.environment}. Python: {platform.python_version()}.", "",
              f"Training rows: {len(train)}. Test rows: {len(test)}. Seed: {SEED}.",
              "Positive class: won. Settings selected by five-fold training CV F1.", "",
              "| ML Model Name | " + " | ".join(METRICS) + " |",
