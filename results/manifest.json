@@ -1,7 +1,7 @@
 {
-  "created_utc": "2026-11-01T06:46:35.246338+00:00",
-  "python": "3.14.4",
-  "execution_environment": "local",
+  "created_utc": "2026-11-01T07:11:55.383540+00:00",
+  "python": "3.12.7",
+  "execution_environment": "bits-lab",
   "packages": {
     "numpy": "2.5.4",
     "pandas": "3.1.0",
@@ -3422,10 +3422,10 @@
     "evaluation.py": "fd3641e0baf5da0bdbcc4a6b3873a8d91bb1c8ce5868a30b4b258c690dce7abc"
   },
   "model_sha256": {
-    "decision_tree.joblib": "90ff292363da1da8760b115d5ff9c4366c5d04d5a39ee9d4c543aabc0744b89d",
-    "knn.joblib": "9f2cf3197e0f15ec08250d5c61984c82f9f823285142a9120e1dce82eb87a5d8",
-    "logistic_regression.joblib": "192cdc743813a77c860aa339b13cfe365d3710c641e250884f378348b763f027",
-    "naive_bayes.joblib": "8e821c8c8e731a33248fc1d17072f02b77758920251cbc10c8d224e03417dc55",
-    "svm.joblib": "744624b6b5fc7341f8ff269d6336fe64112aae76da87d4687c16118d54d65011"
+    "decision_tree.joblib": "37b02b75ae0aedbcaa6582cfbce0e72fe4668d34767044427938a0f23425fb85",
+    "knn.joblib": "b9bf7147c2e52ebcf6f7ac4433960c89d894e2977c3ca08cbcce5a697b3a59dc",
+    "logistic_regression.joblib": "6d6ae438f850ae253581e61f79b386a8ce3a8414baeec667328c96880bcfa174",
+    "naive_bayes.joblib": "62e74cb41151e71891951ba2d229ea69895d6c12a0c01c7629ca2588dbf31961",
+    "svm.joblib": "9c7be506c6b492419311d2a27ee5de369b0c75213a1f42469d6405e78c293c9b"
   }
 }
