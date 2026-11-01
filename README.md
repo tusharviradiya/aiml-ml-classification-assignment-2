@@ -186,9 +186,15 @@ Phone-to-desktop layout checks are documented in the
 artifacts, and `pip check` reports no broken requirements. KNN predictions and
 probabilities are identical with the Cython pairwise setting enabled and disabled,
 thread limits of 1 and 2, and query batch sizes of 1, 17 and 640. The other four
-pipelines also reproduce their recorded metrics. This establishes local
-consistency; verification of the revised artifacts on BITS Lab and the public
-deployment remains necessary before claiming agreement across those environments.
+pipelines also reproduce their recorded metrics.
+
+**Public deployment verification, 1 November 2026:** all six displayed KNN
+metrics match the revised local run: accuracy **96.09%**, AUC **0.9932**,
+precision **0.9478**, recall **0.9790**, F1 **0.9632** and MCC **0.9222**.
+The confusion matrix also matches: `[[288, 18], [7, 327]]` in `[nowin, won]`
+order. A [deployed KNN screenshot](docs/streamlit_knn_verification.png) records
+this check. Verification of the revised configuration on BITS Lab remains the
+final environment check.
 
 ## Key files
 
