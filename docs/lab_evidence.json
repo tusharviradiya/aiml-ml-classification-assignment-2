@@ -1,29 +1,19 @@
 {
   "captured_date": "1 November 2026",
-  "artifact_revision": "ff29951",
-  "training_source_sha256": "9f87267aebe8602b7782e56505ae7c478949dbd4c1c87ec26b0174f4dd886fa0",
-  "metrics_sha256": "07a8d4cc84705d55b7c908393a598b17a2c9db598e2160b5ace9e42d57c0ff90",
-  "knn_test_f1": 0.9598811292719168,
+  "artifact_revision": "87ef6e9",
+  "training_source_sha256": "fe06592af8559b5f7223d22340337af250e31a4e483c03b7bc20aa31c40242a4",
+  "metrics_sha256": "e3d3372e30579da2575bf0763104561a26d7113aa51928af937d331b13553965",
+  "knn_test_f1": 0.9631811487481591,
   "figures": [
     {
       "file": "bits_lab_training.png",
-      "title": "Completed model training",
-      "caption": "All five classifiers completed training in BITS Virtual Lab; SVM was selected. This run used the preceding KNN configuration (test F1 0.9599)."
+      "title": "Completed training and test execution",
+      "caption": "1 November 2026, 12:42. All five models completed training in BITS Virtual Lab. KNN F1 is 0.9632, and SVM is selected. Test execution is shown below the results."
     },
     {
       "file": "bits_lab_execution.png",
-      "title": "Project and README in the lab",
-      "caption": "Project files and README viewed inside the lab session. Text visible inside this capture belongs to that earlier revision."
-    },
-    {
-      "file": "bits_lab_cloud.png",
-      "title": "Public Streamlit Community Cloud application",
-      "caption": "The public cloud app opened from the lab browser. This demonstrates the deployment interface; completed lab training is shown in the preceding capture."
-    },
-    {
-      "file": "bits_lab_history.png",
-      "title": "Pushed artifact revision in the lab terminal",
-      "caption": "Git history shows ff29951 as HEAD, main and origin/main. The capture documents that earlier pushed artifact revision."
+      "title": "All tests passed and dependencies checked",
+      "caption": "1 November 2026, 12:44. The terminal shows 17 tests passing (OK) and No broken requirements found. Only the outer browser address bar is redacted; terminal output is preserved."
     }
   ]
 }

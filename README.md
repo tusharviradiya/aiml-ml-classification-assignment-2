@@ -4,9 +4,10 @@ Machine Learning Assignment 2 · [Live Streamlit app](https://chess-endgame-lab-
 
 Five classifiers, saved preprocessing pipelines, held-out results, and a deployed
 Streamlit app are included. The revised KNN uses an explicit KD-tree search and
-Manhattan distance. The latest artifacts were trained and verified locally;
-the retained BITS Virtual Lab screenshots document the earlier run `ff29951`.
-Verification of the revised configuration on the lab remains a final step.
+Manhattan distance. The final artifacts were trained and verified on BITS Virtual
+Lab with Python 3.12.7, then committed as `87ef6e9`. New lab screenshots show the
+matching model results, all 17 tests passing and a successful dependency check.
+The same saved artifacts also pass all 17 checks locally on Python 3.14.4.
 
 ## a. Problem statement
 
@@ -117,10 +118,9 @@ A false win means predicting won for a nowin position; a missed win means predic
 
 ## Reproduce the project
 
-The latest local run used **Python 3.14.4**. The earlier BITS lab run used
-**Python 3.12.7**; the dev container now targets Python 3.12. The revised model
-must also be verified in the lab environment. Install the pinned dependencies
-from the repository root:
+The final training run used **Python 3.12.7 on BITS Virtual Lab**. The saved lab
+artifacts were also verified locally on **Python 3.14.4**; the dev container targets
+Python 3.12. Install the pinned dependencies from the repository root:
 
 ```bash
 python3 -m venv .venv
@@ -128,18 +128,18 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-To reproduce training and validate the project locally or on BITS Virtual Lab:
+To reproduce the final run on BITS Virtual Lab:
 
 ```bash
 python scripts/audit_dataset.py
-python train.py --environment local
+python train.py --environment bits-lab
 python -m unittest discover -s tests -v
 python -m pip check
 ```
 
-On BITS Virtual Lab, use `python train.py --environment bits-lab` instead, then
-run the same tests and dependency check. The environment flag records the
-execution location; screenshots provide separate evidence.
+For local training, use `python train.py --environment local` instead. The
+environment flag records the execution location; screenshots provide separate
+lab evidence.
 
 Training overwrites saved models, splits, results, and the marked README section.
 Keep the original data, row order, seed and dependencies unchanged. Versions,
@@ -147,10 +147,10 @@ source-row indices, source-code hashes and saved-model hashes are recorded in
 `results/manifest.json`; selected and fixed parameters and detailed evaluations
 are in `results/evaluation.json`.
 
-After a final lab run, pull the saved artifacts locally and run the tests again.
-Compare all six displayed KNN metrics on Streamlit with `results/metrics.csv`.
-Capture training and test completion in the lab, replace the redacted evidence,
-and rebuild the PDF. The existing screenshots remain evidence of the earlier run.
+After any new training run, verify the saved artifacts locally, compare the
+Streamlit metrics with `results/metrics.csv`, and refresh the evidence and PDF
+if the run changes. The final lab run and local verification reported here use
+the same saved artifacts and recorded metrics.
 
 ## Run and use the app
 
@@ -182,8 +182,16 @@ session reuse and isolation, and KNN reproducibility across query paths.
 Phone-to-desktop layout checks are documented in the
 [responsiveness report](docs/RESPONSIVENESS.md).
 
-**Local verification, 1 November 2026:** all 17 tests pass on the revised saved
-artifacts, and `pip check` reports no broken requirements. KNN predictions and
+**BITS Virtual Lab verification, 1 November 2026:** the final run completed
+training for all five classifiers and selected SVM by mean training CV F1.
+The lab terminal records **17 tests passing in 31.752 seconds** and
+**No broken requirements found**. The screenshots below document the run
+whose artifacts were committed as `87ef6e9`.
+
+**Local verification of the final lab artifacts, 1 November 2026:** all 17 tests
+also pass on Python 3.14.4, and `pip check` reports no broken requirements.
+All recorded test metrics and training CV results match the previous local run
+exactly. KNN predictions and
 probabilities are identical with the Cython pairwise setting enabled and disabled,
 thread limits of 1 and 2, and query batch sizes of 1, 17 and 640. The other four
 pipelines also reproduce their recorded metrics.
@@ -192,9 +200,8 @@ pipelines also reproduce their recorded metrics.
 metrics match the revised local run: accuracy **96.09%**, AUC **0.9932**,
 precision **0.9478**, recall **0.9790**, F1 **0.9632** and MCC **0.9222**.
 The confusion matrix also matches: `[[288, 18], [7, 327]]` in `[nowin, won]`
-order. A [deployed KNN screenshot](docs/streamlit_knn_verification.png) records
-this check. Verification of the revised configuration on BITS Lab remains the
-final environment check.
+order. The [deployed KNN screenshot](docs/streamlit_knn_verification.png) records
+this check. The configuration and displayed values agree with the final lab run.
 
 ## Key files
 
@@ -211,35 +218,29 @@ final environment check.
 
 ## BITS Virtual Lab execution evidence
 
-Screenshots from the **earlier lab run on 1 November 2026**, revision `ff29951`:
+Final lab screenshots captured on **1 November 2026**, with artifacts committed
+as `87ef6e9`:
 
-- [Completed training — primary evidence](docs/bits_lab_training.png): all five
-  classifiers, evaluation metrics and SVM selection using the previous KNN setup.
-- [Project and README](docs/bits_lab_execution.png): project files and README
-  viewed in the lab before this documentation refresh.
-- Supporting views: [public cloud app](docs/bits_lab_cloud.png) and
-  [Git history](docs/bits_lab_history.png) opened within the lab session.
+- [Completed training and test execution](docs/bits_lab_training.png), 12:42:
+  all five classifiers, six metrics per model, SVM selection and test execution.
+  KNN test F1 is **0.9632**, matching the comparison table.
+- [Passed tests and dependency check](docs/bits_lab_execution.png), 12:44:
+  **Ran 17 tests**, **OK**, and **No broken requirements found**.
 
-The outer lab browser address bars are redacted to protect the session token;
-the execution output is preserved. The cloud view shows the public deployment;
-completed lab training is shown in the primary image. The history view shows
-commit `ff29951`. These screenshots do not show the unit-test or pip-check output.
-
-**Run distinction:** the earlier lab screenshot shows KNN test F1 **0.9599**
-using the previous brute-force Euclidean search. The revised KD-tree/Manhattan
-run reports test F1 **0.9632**. These are different configurations, not two
-measurements claimed to reproduce the same run. The data and test split are
-unchanged. A new lab run and screenshots are needed to document the revision.
+Only the outer lab browser address bars are redacted to remove session tokens.
+The rest of each screenshot, including the terminal output, is preserved. The
+training-source and metrics hashes in `docs/lab_evidence.json` match the final
+run. The prior KNN discrepancy is resolved for the verified local, lab and public
+app results. Future changes to the data order or dependencies require rechecking.
 
 ## Submission
 
 `ML_Assignment_2_Submission.pdf` contains the clickable GitHub and live app links,
-lab evidence, and full README in the required order. Four screenshots are arranged
-two per A4 page, with additional views labeled as supporting evidence.
+lab evidence, and full README in the required order. The two final lab screenshots
+are arranged together on an A4 page.
 
-The PDF was refreshed on **1 November 2026** with the revised local results and
-this README. Earlier lab screenshots are clearly labeled. A new lab run is still
-needed to close the final verification step. The assignment allows AI for
+The PDF was refreshed on **1 November 2026** with the final lab results, new
+redacted training/test evidence and this README. The assignment allows AI for
 learning support; understand and verify the implementation and observations.
 Upload the final PDF to the portal by **8 November 2026, 23:59**.
 

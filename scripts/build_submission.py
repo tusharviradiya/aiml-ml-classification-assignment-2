@@ -81,12 +81,14 @@ def submission_html():
         f'· revision {html.escape(evidence["artifact_revision"])}</p>'
         + "".join(figure(item) for item in evidence["figures"][:2]) + "</section>"
     )
-    evidence2 = (
-        '<section class="evidence"><h2>3. Supporting lab-session views</h2>'
-        + "".join(figure(item) for item in evidence["figures"][2:])
-        + '<p class="note">Outer lab browser address bars are redacted. '
-        'Execution output is preserved. These four captures document the same lab session.</p></section>'
-    )
+    evidence2 = ""
+    if evidence["figures"][2:]:
+        evidence2 = (
+            '<section class="evidence"><h2>3. Supporting lab-session views</h2>'
+            + "".join(figure(item) for item in evidence["figures"][2:])
+            + '<p class="note">Outer lab browser address bars are redacted. '
+            'Execution output is preserved.</p></section>'
+        )
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         f'<title>ML Assignment 2 Submission</title><style>{css}</style></head><body>'
